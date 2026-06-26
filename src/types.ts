@@ -21,6 +21,8 @@ export interface Config {
   theme: string;
   locale: string;
   onboarding_completed: boolean;
+  autostart: boolean;
+  launch_with_tools: boolean;
   window: { x: number; y: number; size: string; horizontal?: boolean };
   sounds: SoundsConfig;
 }

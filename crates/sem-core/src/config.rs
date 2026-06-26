@@ -42,6 +42,10 @@ pub struct Config {
     pub sounds: SoundsConfig,
     #[serde(default)]
     pub onboarding_completed: bool,
+    #[serde(default)]
+    pub autostart: bool,
+    #[serde(default)]
+    pub launch_with_tools: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -170,6 +174,8 @@ impl Default for Config {
             window: WindowConfig::default(),
             sounds: SoundsConfig::default(),
             onboarding_completed: false,
+            autostart: false,
+            launch_with_tools: false,
         }
     }
 }
@@ -268,5 +274,7 @@ mod tests {
         let config: Config = serde_json::from_str(raw).unwrap();
         assert_eq!(config.window.size, "medium");
         assert!(!config.onboarding_completed);
+        assert!(!config.autostart);
+        assert!(!config.launch_with_tools);
     }
 }
