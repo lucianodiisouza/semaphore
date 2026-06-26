@@ -3036,7 +3036,7 @@ dependencies = [
 
 [[package]]
 name = "sem-core"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "libc",
  "serde",
@@ -3048,7 +3048,7 @@ dependencies = [
 
 [[package]]
 name = "semaphore"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "sem-core",
  "semctl",
@@ -3067,7 +3067,7 @@ dependencies = [
 
 [[package]]
 name = "semctl"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "clap",
  "sem-core",
