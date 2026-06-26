@@ -20,6 +20,8 @@ pub struct SoundsConfig {
     pub yellow: StageSound,
     #[serde(default = "default_red_sound")]
     pub red: StageSound,
+    #[serde(default = "default_awaiting_input_sound")]
+    pub awaiting_input: StageSound,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -151,6 +153,13 @@ fn default_red_sound() -> StageSound {
     }
 }
 
+fn default_awaiting_input_sound() -> StageSound {
+    StageSound {
+        preset: "attention-chime".to_string(),
+        custom_path: None,
+    }
+}
+
 impl Default for SoundsConfig {
     fn default() -> Self {
         Self {
@@ -158,6 +167,7 @@ impl Default for SoundsConfig {
             green: default_green_sound(),
             yellow: default_yellow_sound(),
             red: default_red_sound(),
+            awaiting_input: default_awaiting_input_sound(),
         }
     }
 }

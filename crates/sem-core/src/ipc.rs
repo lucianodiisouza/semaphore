@@ -6,7 +6,7 @@ use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::sync::{broadcast, Mutex, RwLock};
 use tracing::{debug, warn};
 
-use crate::state::{LightState, StateMachine};
+use crate::state::{LightState, StateSnapshot, StateMachine};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "cmd", rename_all = "lowercase")]
@@ -51,12 +51,12 @@ pub fn socket_path() -> PathBuf {
 }
 
 pub struct IpcServerHandle {
-    pub state_tx: broadcast::Sender<LightState>,
+    pub state_tx: broadcast::Sender<StateSnapshot>,
 }
 
 pub struct IpcServer {
     machine: Arc<RwLock<StateMachine>>,
-    state_tx: broadcast::Sender<LightState>,
+    state_tx: broadcast::Sender<StateSnapshot>,
 }
 
 impl IpcServer {
@@ -127,7 +127,7 @@ impl IpcServer {
 async fn handle_client<S>(
     stream: S,
     machine: Arc<RwLock<StateMachine>>,
-    state_tx: broadcast::Sender<LightState>,
+    state_tx: broadcast::Sender<StateSnapshot>,
 ) -> std::io::Result<()>
 where
     S: tokio::io::AsyncRead + tokio::io::AsyncWrite + Unpin,
@@ -154,7 +154,7 @@ where
 async fn process_line(
     line: &str,
     machine: &Arc<RwLock<StateMachine>>,
-    state_tx: &broadcast::Sender<LightState>,
+    state_tx: &broadcast::Sender<StateSnapshot>,
 ) -> IpcResponse {
     let request: IpcRequest = match serde_json::from_str(line) {
         Ok(req) => req,
@@ -189,12 +189,11 @@ async fn process_line(
                 session
             };
             let mut guard = machine.write().await;
-            let aggregated =
-                guard.set_session(&session_id, parsed, &source, &reason);
+            let snapshot = guard.set_session(&session_id, parsed, &source, &reason);
             drop(guard);
-            let _ = state_tx.send(aggregated);
+            let _ = state_tx.send(snapshot);
             IpcResponse {
-                state: light_state_to_str(aggregated).to_string(),
+                state: light_state_to_str(snapshot.state).to_string(),
                 error: None,
             }
         }
@@ -273,13 +272,13 @@ fn parse_response(line: &str) -> std::io::Result<IpcResponse> {
 
 pub struct PruneTask {
     machine: Arc<RwLock<StateMachine>>,
-    state_tx: broadcast::Sender<LightState>,
+    state_tx: broadcast::Sender<StateSnapshot>,
 }
 
 impl PruneTask {
     pub fn new(
         machine: Arc<RwLock<StateMachine>>,
-        state_tx: broadcast::Sender<LightState>,
+        state_tx: broadcast::Sender<StateSnapshot>,
     ) -> Self {
         Self { machine, state_tx }
     }
@@ -289,9 +288,9 @@ impl PruneTask {
         loop {
             interval.tick().await;
             let mut guard = self.machine.write().await;
-            let aggregated = guard.prune_stale();
+            let snapshot = guard.prune_stale();
             drop(guard);
-            let _ = self.state_tx.send(aggregated);
+            let _ = self.state_tx.send(snapshot);
         }
     }
 }
