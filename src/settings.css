@@ -139,3 +139,37 @@ select {
 #btn-save:hover {
   background: #35c55a;
 }
+
+.sound-row {
+  margin-bottom: 14px;
+}
+
+.sound-label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: #ddd;
+}
+
+.sound-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.sound-controls select {
+  flex: 1;
+  min-width: 140px;
+}
+
+.sound-browse-btn,
+.sound-preview-btn {
+  white-space: nowrap;
+}
+
+.sound-custom-hint {
+  display: block;
+  margin-top: 4px;
+  word-break: break-all;
+}

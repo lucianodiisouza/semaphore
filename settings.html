@@ -34,6 +34,72 @@
           <p id="stealth-note" class="note"></p>
         </section>
 
+        <section class="section" id="sounds-section">
+          <h2 id="label-sounds">Notification sounds</h2>
+          <label class="checkbox-row">
+            <input type="checkbox" id="sounds-enabled-checkbox" />
+            <span id="label-sounds-enabled">Play a sound when the light changes</span>
+          </label>
+          <p id="sounds-note" class="note"></p>
+
+          <div class="sound-row" data-stage="green">
+            <span class="sound-label" id="label-sound-green">Green (ready)</span>
+            <div class="sound-controls">
+              <select class="sound-preset-select" id="sound-green-preset">
+                <option value="soft-chime">Soft chime</option>
+                <option value="double-ping">Double ping</option>
+                <option value="alert">Alert</option>
+                <option value="chime">Chime</option>
+                <option value="bell">Bell</option>
+                <option value="ping">Ping</option>
+                <option value="pop">Pop</option>
+                <option value="custom">Custom file…</option>
+              </select>
+              <button type="button" class="sound-browse-btn" id="sound-green-browse" hidden>Browse…</button>
+              <button type="button" class="sound-preview-btn" id="sound-green-preview">Preview</button>
+            </div>
+            <span class="sound-custom-hint note" id="sound-green-hint" hidden></span>
+          </div>
+
+          <div class="sound-row" data-stage="yellow">
+            <span class="sound-label" id="label-sound-yellow">Yellow (thinking)</span>
+            <div class="sound-controls">
+              <select class="sound-preset-select" id="sound-yellow-preset">
+                <option value="soft-chime">Soft chime</option>
+                <option value="double-ping">Double ping</option>
+                <option value="alert">Alert</option>
+                <option value="chime">Chime</option>
+                <option value="bell">Bell</option>
+                <option value="ping">Ping</option>
+                <option value="pop">Pop</option>
+                <option value="custom">Custom file…</option>
+              </select>
+              <button type="button" class="sound-browse-btn" id="sound-yellow-browse" hidden>Browse…</button>
+              <button type="button" class="sound-preview-btn" id="sound-yellow-preview">Preview</button>
+            </div>
+            <span class="sound-custom-hint note" id="sound-yellow-hint" hidden></span>
+          </div>
+
+          <div class="sound-row" data-stage="red">
+            <span class="sound-label" id="label-sound-red">Red (writing)</span>
+            <div class="sound-controls">
+              <select class="sound-preset-select" id="sound-red-preset">
+                <option value="soft-chime">Soft chime</option>
+                <option value="double-ping">Double ping</option>
+                <option value="alert">Alert</option>
+                <option value="chime">Chime</option>
+                <option value="bell">Bell</option>
+                <option value="ping">Ping</option>
+                <option value="pop">Pop</option>
+                <option value="custom">Custom file…</option>
+              </select>
+              <button type="button" class="sound-browse-btn" id="sound-red-browse" hidden>Browse…</button>
+              <button type="button" class="sound-preview-btn" id="sound-red-preview">Preview</button>
+            </div>
+            <span class="sound-custom-hint note" id="sound-red-hint" hidden></span>
+          </div>
+        </section>
+
         <section class="section">
           <h2 id="label-connect">Connect tools</h2>
           <div class="tool-buttons">
