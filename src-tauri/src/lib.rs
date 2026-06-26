@@ -6,7 +6,6 @@ use sem_core::ipc::{IpcServer, PruneTask};
 use sem_core::state::{LightState, StateMachine};
 use semctl::detect::{self, ToolStatus};
 use semctl::install;
-use tauri_plugin_autostart::MacosLauncher;
 use tauri::{
     menu::{CheckMenuItem, Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
@@ -352,9 +351,10 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
-        .plugin(tauri_plugin_autostart::Builder::new()
-            .macos_launcher(MacosLauncher::LaunchAgent)
-            .build())
+        .plugin(tauri_plugin_autostart::init(
+            tauri_plugin_autostart::MacosLauncher::LaunchAgent,
+            None,
+        ))
         .plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
             focus_main_window(app);
         }))
