@@ -114,6 +114,18 @@ async function playCustomFile(path: string): Promise<void> {
   });
 }
 
+export function playTestLightsMelody(): void {
+  const ctx = getAudioContext();
+  resumeContext(ctx);
+  const t0 = ctx.currentTime;
+  const step = 0.48;
+
+  playTone(ctx, 523.25, t0, 0.22, 0.13);
+  playTone(ctx, 659.25, t0 + step, 0.22, 0.13);
+  playTone(ctx, 783.99, t0 + step * 2.0, 0.28, 0.14);
+  playTone(ctx, 523.25, t0 + step * 2.85, 0.35, 0.1);
+}
+
 export async function playStageSound(_stage: Light, sound: StageSound): Promise<void> {
   if (sound.custom_path) {
     try {
