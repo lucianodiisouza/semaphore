@@ -4,12 +4,13 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { t, type Locale } from "./i18n";
 import type { Config, ToolStatus } from "./types";
 
-const STEPS = ["welcome", "tools", "done"] as const;
+const STEPS = ["welcome", "tools", "streamdeck", "done"] as const;
 type Step = (typeof STEPS)[number];
 
 let currentStep: Step = "welcome";
 let currentLocale: Locale = "en";
 let detectedTools: ToolStatus[] = [];
+let streamDeckDetected = false;
 
 function showStep(step: Step): void {
   currentStep = step;
@@ -25,6 +26,10 @@ function showStep(step: Step): void {
 
   backBtn.hidden = step === "welcome";
   skipBtn.hidden = step === "done";
+
+  if (step === "streamdeck") {
+    void loadStreamDeck();
+  }
 
   if (step === "done") {
     nextBtn.textContent = strings.onboarding.finish;
@@ -44,6 +49,10 @@ function applyLocale(locale: Locale): void {
   document.getElementById("tools-title")!.textContent = strings.onboarding.toolsTitle;
   document.getElementById("tools-body")!.textContent = strings.onboarding.toolsBody;
   document.getElementById("tools-empty")!.textContent = strings.onboarding.toolsEmpty;
+  document.getElementById("streamdeck-title")!.textContent = strings.onboarding.streamdeckTitle;
+  document.getElementById("streamdeck-body")!.textContent = strings.onboarding.streamdeckBody;
+  document.getElementById("streamdeck-label")!.textContent = strings.onboarding.streamdeckLabel;
+  document.getElementById("streamdeck-note")!.textContent = strings.onboarding.streamdeckNote;
   document.getElementById("done-title")!.textContent = strings.onboarding.doneTitle;
   document.getElementById("done-body")!.textContent = strings.onboarding.doneBody;
   document.getElementById("btn-connect-selected")!.textContent =
@@ -108,6 +117,21 @@ async function loadTools(): Promise<void> {
   renderToolsList();
 }
 
+async function loadStreamDeck(): Promise<void> {
+  try {
+    streamDeckDetected = await invoke<boolean>("detect_stream_deck");
+  } catch {
+    streamDeckDetected = false;
+  }
+
+  const checkbox = document.getElementById("streamdeck-checkbox") as HTMLInputElement;
+  const note = document.getElementById("streamdeck-note") as HTMLParagraphElement;
+
+  checkbox.checked = false; // always unchecked by default
+  checkbox.disabled = !streamDeckDetected;
+  note.hidden = streamDeckDetected;
+}
+
 async function connectSelected(): Promise<void> {
   const strings = t(currentLocale);
   const connectBtn = document.getElementById("btn-connect-selected") as HTMLButtonElement;
@@ -146,17 +170,44 @@ function nextStep(): void {
   if (currentStep === "welcome") {
     showStep("tools");
   } else if (currentStep === "tools") {
-    showStep("done");
+    showStep("streamdeck");
+  } else if (currentStep === "streamdeck") {
+    void installStreamDeckIfChecked().then(() => showStep("done"));
   } else {
     void finishOnboarding();
+  }
+}
+
+async function installStreamDeckIfChecked(): Promise<void> {
+  const checkbox = document.getElementById("streamdeck-checkbox") as HTMLInputElement;
+  if (!checkbox.checked) return;
+
+  const strings = t(currentLocale);
+  const nextBtn = document.getElementById("btn-next") as HTMLButtonElement;
+  const doneNote = document.getElementById("streamdeck-done-note") as HTMLParagraphElement;
+
+  nextBtn.disabled = true;
+  nextBtn.textContent = strings.onboarding.streamdeckInstalling;
+
+  try {
+    await invoke("install_stream_deck");
+    doneNote.textContent = strings.onboarding.streamdeckDone;
+    doneNote.hidden = false;
+  } catch {
+    // Non-fatal: continue to done step even if install fails
+  } finally {
+    nextBtn.disabled = false;
+    nextBtn.textContent = strings.onboarding.next;
   }
 }
 
 function prevStep(): void {
   if (currentStep === "tools") {
     showStep("welcome");
-  } else if (currentStep === "done") {
+  } else if (currentStep === "streamdeck") {
     showStep("tools");
+  } else if (currentStep === "done") {
+    showStep("streamdeck");
   }
 }
 
@@ -164,6 +215,9 @@ async function resetOnboarding(): Promise<void> {
   const config = await invoke<Config>("get_config");
   applyLocale((config.locale as Locale) || "en");
   await loadTools();
+  streamDeckDetected = false;
+  const doneNote = document.getElementById("streamdeck-done-note") as HTMLParagraphElement;
+  if (doneNote) doneNote.hidden = true;
   showStep("welcome");
 }
 

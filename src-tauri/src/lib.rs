@@ -332,6 +332,75 @@ fn import_stage_sound(stage: String, source_path: String) -> Result<String, Stri
         .ok_or_else(|| "invalid destination path".to_string())
 }
 
+// ---------------------------------------------------------------------------
+// Stream Deck integration
+// ---------------------------------------------------------------------------
+
+/// Returns the Elgato Stream Deck plugins directory for the current platform.
+fn sd_plugins_dir() -> Option<std::path::PathBuf> {
+    #[cfg(target_os = "windows")]
+    {
+        std::env::var("APPDATA").ok().map(|p| {
+            std::path::PathBuf::from(p)
+                .join("Elgato")
+                .join("StreamDeck")
+                .join("Plugins")
+        })
+    }
+    #[cfg(target_os = "macos")]
+    {
+        std::env::var("HOME").ok().map(|h| {
+            std::path::PathBuf::from(h)
+                .join("Library")
+                .join("Application Support")
+                .join("com.elgato.StreamDeck")
+                .join("Plugins")
+        })
+    }
+    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
+    {
+        None
+    }
+}
+
+fn copy_dir_recursively(
+    src: &std::path::Path,
+    dst: &std::path::Path,
+) -> std::io::Result<()> {
+    std::fs::create_dir_all(dst)?;
+    for entry in std::fs::read_dir(src)? {
+        let entry = entry?;
+        let dst_path = dst.join(entry.file_name());
+        if entry.file_type()?.is_dir() {
+            copy_dir_recursively(&entry.path(), &dst_path)?;
+        } else {
+            std::fs::copy(entry.path(), dst_path)?;
+        }
+    }
+    Ok(())
+}
+
+/// Returns `true` when the Stream Deck software appears to be installed
+/// (its plugins directory exists).
+#[tauri::command]
+fn detect_stream_deck() -> bool {
+    sd_plugins_dir().is_some_and(|p| p.exists())
+}
+
+/// Copies the bundled `.sdPlugin` directory into the Stream Deck plugins folder.
+#[tauri::command]
+fn install_stream_deck(app: AppHandle) -> Result<(), String> {
+    let resource_dir = app.path().resource_dir().map_err(|e| e.to_string())?;
+    let src = resource_dir.join("com.semaphore.streamdeck.sdPlugin");
+    if !src.exists() {
+        return Err("bundled Stream Deck plugin not found in app resources".to_string());
+    }
+    let plugins_dir =
+        sd_plugins_dir().ok_or_else(|| "Stream Deck plugins directory not found".to_string())?;
+    let dst = plugins_dir.join("com.semaphore.streamdeck.sdPlugin");
+    copy_dir_recursively(&src, &dst).map_err(|e| e.to_string())
+}
+
 const TRAY_ICON_ID: &str = "main";
 
 #[derive(Clone)]
@@ -623,7 +692,9 @@ pub fn run() {
             set_autostart,
             sync_launch_hooks,
             genius_preview_light,
-            end_genius_game
+            end_genius_game,
+            detect_stream_deck,
+            install_stream_deck
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

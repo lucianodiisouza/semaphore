@@ -173,8 +173,9 @@ Requisitos: Rust (stable), Node.js 20+, npm.
 
 ```bash
 npm install
-npm run tauri dev          # app em modo dev
-npm run tauri build        # bundle de release
+npm run tauri dev                  # app em modo dev
+npm run tauri build                # bundle de release (inclui o plugin Stream Deck)
+npm run build:stream-deck          # somente o plugin Stream Deck
 cargo build -p semctl --release
 cargo test
 npm test
@@ -189,6 +190,50 @@ No Linux, instale dependências WebKit/GTK antes de compilar (veja [README.md](R
 Temas: `classic`, `minimal`, `neon` em `src/themes/`.
 
 Idiomas: inglês e português (Brasil). Para contribuir com traduções: [locales/CONTRIBUTING-i18n.md](locales/CONTRIBUTING-i18n.md).
+
+---
+
+## Stream Deck
+
+O Semaphore pode exibir o semáforo diretamente em uma tecla do [Elgato Stream Deck](https://www.elgato.com/en/stream-deck). A tecla é atualizada automaticamente a cada 500 ms — sem precisar pressionar nenhum botão.
+
+| Estado da tecla | Significado |
+|-----------------|-------------|
+| Círculo verde | Agente ocioso |
+| Círculo amarelo | Agente pensando / executando ferramentas |
+| Círculo vermelho | Agente escrevendo ou editando arquivos |
+| Círculo cinza | App Semaphore não está em execução |
+
+### Requisitos
+
+- **App Stream Deck** v6.0 ou superior (Windows ou macOS; Linux não é suportado oficialmente pela Elgato)
+- **Semaphore** em execução em segundo plano para que o socket IPC esteja ativo
+
+### Instalar pelo onboarding
+
+1. Abra o Semaphore pela primeira vez **ou** acesse **Configurações → Sobre → Refazer introdução**
+2. Avance até a etapa **Stream Deck**
+3. Marque **Instalar plugin do Stream Deck** (desmarcado por padrão) e clique em **Próximo**
+
+O Semaphore copia o plugin para a pasta de plugins da Elgato. Na maioria dos casos o Stream Deck o reconhece sem reinicialização.
+
+> A caixa de seleção só é habilitada quando o app Stream Deck é detectado no sistema. Se estiver cinza, instale o Stream Deck primeiro e refaça o onboarding.
+
+### Instalação manual
+
+1. Compile ou baixe um release do Semaphore (o bundle `.sdPlugin` está incluso em todo release)
+2. Copie `com.semaphore.streamdeck.sdPlugin` para a pasta de plugins da Elgato:
+
+| Plataforma | Pasta de plugins |
+|------------|-----------------|
+| **Windows** | `%APPDATA%\Elgato\StreamDeck\Plugins\` |
+| **macOS** | `~/Library/Application Support/com.elgato.StreamDeck/Plugins/` |
+
+3. Reinicie o app Stream Deck se ele estava aberto durante a cópia
+
+### Como funciona
+
+O plugin roda como um processo Node.js separado dentro do Stream Deck. A cada 500 ms ele abre uma conexão de curta duração com o socket IPC do Semaphore, envia `{"cmd":"status"}`, lê a resposta e chama `setImage()` em todas as teclas ativas com essa ação. Quando o Semaphore não está em execução, a tecla exibe um círculo cinza.
 
 ---
 

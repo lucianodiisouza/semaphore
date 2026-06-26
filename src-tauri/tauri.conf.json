@@ -6,7 +6,7 @@
   "build": {
     "beforeDevCommand": "npm run dev:prepare && npm run dev",
     "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "npm run build && npm run stage-semctl:release",
+    "beforeBuildCommand": "npm run build && npm run stage-semctl:release && npm run build:stream-deck",
     "frontendDist": "../dist"
   },
   "app": {
@@ -64,6 +64,9 @@
     "targets": "all",
     "externalBin": [
       "bin/semctl"
+    ],
+    "resources": [
+      "../stream-deck/com.semaphore.streamdeck.sdPlugin"
     ],
     "icon": [
       "icons/32x32.png",

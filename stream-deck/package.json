@@ -1,0 +1,21 @@
+{
+  "name": "com.semaphore.streamdeck",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "rollup -c",
+    "watch": "rollup -c -w"
+  },
+  "dependencies": {
+    "@elgato/streamdeck": "^2.1.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28",
+    "@rollup/plugin-node-resolve": "^15",
+    "@rollup/plugin-typescript": "^12",
+    "@types/node": "^22",
+    "rollup": "^4",
+    "tslib": "^2",
+    "typescript": "^5"
+  }
+}

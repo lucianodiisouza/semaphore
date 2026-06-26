@@ -25,6 +25,7 @@ Semaphore is a small always-on-top widget in the system tray. AI tools send acti
 - [Development](#development)
 - [Themes & i18n](#themes--i18n)
 - [Sounds](#sounds)
+- [Stream Deck](#stream-deck)
 - [Stealth mode](#stealth-mode)
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
@@ -322,7 +323,7 @@ Newline-delimited JSON over:
 ### Project layout
 
 ```
-traffic-lights/
+semaphore/
 ├── adapters/           # Per-tool hook templates & docs
 ├── crates/
 │   ├── sem-core/       # Shared library (state, IPC, config)
@@ -330,7 +331,8 @@ traffic-lights/
 ├── locales/            # en.json, pt-BR.json
 ├── src/                # Frontend (widget, settings, themes)
 ├── src-tauri/          # Tauri app shell
-└── scripts/            # Build helpers (stage semctl)
+├── stream-deck/        # Elgato Stream Deck plugin (TypeScript/Node.js)
+└── scripts/            # Build helpers (stage semctl, generate Stream Deck icons)
 ```
 
 ---
@@ -361,11 +363,14 @@ This starts the Vite dev server, builds `semctl`, and launches the Tauri app wit
 ### Build
 
 ```bash
-# Desktop app (release bundle)
+# Desktop app (release bundle — also builds the Stream Deck plugin)
 npm run tauri build
 
 # CLI only
 cargo build -p semctl --release
+
+# Stream Deck plugin only (generates icons + compiles TypeScript)
+npm run build:stream-deck
 ```
 
 ### Test
@@ -422,6 +427,75 @@ Sounds play when the light changes state (off by default). Configure in **Settin
 | Red | `alert` |
 
 Presets are synthesized in-browser. You can also import a custom file per stage (≤ 512 KB). Built-in presets: `soft-chime`, `double-ping`, `alert`, `chime`, `ping`, `beep`.
+
+---
+
+## Stream Deck
+
+Semaphore can show the traffic light directly on an [Elgato Stream Deck](https://www.elgato.com/en/stream-deck) key. The key updates automatically every 500 ms — no button-pressing needed.
+
+| Key state | Meaning |
+|-----------|---------|
+| Green circle | Agent is idle |
+| Yellow circle | Agent is thinking / running tools |
+| Red circle | Agent is writing or editing files |
+| Grey circle | Semaphore app is not running |
+
+### Requirements
+
+- **Stream Deck app** v6.0 or later (Windows or macOS only; Linux is not officially supported by Elgato)
+- **Semaphore** running in the background so the IPC socket is active
+
+### Install via onboarding
+
+The easiest way to install the plugin is through the onboarding wizard:
+
+1. Launch Semaphore for the first time, **or** open **Settings → About → Restart onboarding**
+2. Proceed to the **Stream Deck** step
+3. Check **Install Stream Deck plugin** (unchecked by default) and click **Next**
+
+Semaphore copies the plugin into the Elgato plugins directory and it becomes available in Stream Deck immediately (no restart required in most cases).
+
+> The checkbox is only enabled when the Stream Deck app is detected on the system. If it is greyed out, install Stream Deck first and then redo onboarding.
+
+### Manual install
+
+You can also install the plugin by hand:
+
+1. Build or download a release of Semaphore (the `.sdPlugin` bundle is included in every release)
+2. Copy `com.semaphore.streamdeck.sdPlugin` to the Elgato plugins folder:
+
+| Platform | Plugins folder |
+|----------|---------------|
+| **Windows** | `%APPDATA%\Elgato\StreamDeck\Plugins\` |
+| **macOS** | `~/Library/Application Support/com.elgato.StreamDeck/Plugins/` |
+
+3. Restart the Stream Deck app if it was running during the copy
+
+### How it works
+
+The plugin runs as a separate Node.js process inside Stream Deck. Every 500 ms it opens a short-lived connection to the Semaphore IPC socket, sends `{"cmd":"status"}`, reads the response, and calls `setImage()` on every active key using that action. When Semaphore is not running the key shows a grey circle.
+
+The plugin uses the same IPC path that `semctl` uses:
+
+| Platform | Path |
+|----------|------|
+| **Windows** | `\\.\pipe\semaphore` |
+| **macOS** | `$XDG_RUNTIME_DIR/semaphore.sock` or `/tmp/semaphore-<uid>.sock` |
+
+### Source layout
+
+```
+stream-deck/
+├── src/
+│   ├── plugin.ts               # entry point; registers SemaphoreLight and connects
+│   ├── ipc.ts                  # IPC query helper (net module)
+│   └── actions/
+│       └── semaphore-light.ts  # polls IPC, updates key images
+└── com.semaphore.streamdeck.sdPlugin/
+    ├── manifest.json           # plugin metadata
+    └── imgs/                   # key images generated at build time
+```
 
 ---
 

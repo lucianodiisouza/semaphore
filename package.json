@@ -8,6 +8,7 @@
     "dev:prepare": "node scripts/prepare-semctl.mjs",
     "stage-semctl:release": "node scripts/prepare-semctl.mjs --release",
     "build": "tsc && vite build",
+    "build:stream-deck": "node scripts/build-stream-deck.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "tauri": "tauri"

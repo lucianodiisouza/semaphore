@@ -84,6 +84,12 @@ export interface LocaleStrings {
     toolsBody: string;
     toolsEmpty: string;
     connectSelected: string;
+    streamdeckTitle: string;
+    streamdeckBody: string;
+    streamdeckLabel: string;
+    streamdeckNote: string;
+    streamdeckInstalling: string;
+    streamdeckDone: string;
     doneTitle: string;
     doneBody: string;
     next: string;
@@ -203,6 +209,13 @@ export const locales: Record<Locale, LocaleStrings> = {
       toolsBody: "We found these AI tools on your system. Select the ones you want to connect:",
       toolsEmpty: "No AI tools detected. You can connect them later in Settings.",
       connectSelected: "Connect selected",
+      streamdeckTitle: "Stream Deck",
+      streamdeckBody:
+        "Semaphore can show the traffic light directly on an Elgato Stream Deck key. The key updates automatically whenever your AI agent changes state.",
+      streamdeckLabel: "Install Stream Deck plugin",
+      streamdeckNote: "Stream Deck app not found — install it first, then redo onboarding.",
+      streamdeckInstalling: "Installing…",
+      streamdeckDone: "Stream Deck plugin installed.",
       doneTitle: "You're all set!",
       doneBody:
         "Drag the semaphore to move it. Double-click to open settings. Use the tray icon for quick access.",
@@ -321,6 +334,13 @@ export const locales: Record<Locale, LocaleStrings> = {
       toolsBody: "Encontramos estas ferramentas de IA no seu sistema. Selecione as que deseja conectar:",
       toolsEmpty: "Nenhuma ferramenta de IA detectada. Você pode conectar depois em Configurações.",
       connectSelected: "Conectar selecionadas",
+      streamdeckTitle: "Stream Deck",
+      streamdeckBody:
+        "O Semaphore pode mostrar o semáforo diretamente em uma tecla do Elgato Stream Deck. A tecla é atualizada automaticamente sempre que seu agente de IA muda de estado.",
+      streamdeckLabel: "Instalar plugin do Stream Deck",
+      streamdeckNote: "App do Stream Deck não encontrado — instale-o primeiro e refaça a introdução.",
+      streamdeckInstalling: "Instalando…",
+      streamdeckDone: "Plugin do Stream Deck instalado.",
       doneTitle: "Tudo pronto!",
       doneBody:
         "Arraste o semáforo para mover. Duplo clique para abrir configurações. Use o ícone da bandeja para acesso rápido.",
