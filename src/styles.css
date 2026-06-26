@@ -245,3 +245,37 @@ body[data-orientation="horizontal"] .housing {
 .housing.gaming .light.active {
   animation: none;
 }
+
+.housing.awaiting-input .light {
+  pointer-events: none;
+}
+
+.housing.awaiting-input .light.green {
+  background: radial-gradient(circle at 30% 30%, #fff5, var(--green));
+}
+
+.housing.awaiting-input .light.yellow {
+  background: radial-gradient(circle at 30% 30%, #fff6, var(--yellow));
+}
+
+.housing.awaiting-input .light.red {
+  background: radial-gradient(circle at 30% 30%, #fff4, var(--red));
+}
+
+.housing.awaiting-input .light {
+  animation: awaiting-pulse 1.2s ease-in-out infinite;
+}
+
+.housing.awaiting-input .light-halo {
+  opacity: 0;
+}
+
+@keyframes awaiting-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}

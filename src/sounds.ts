@@ -72,6 +72,11 @@ function playPreset(preset: string): void {
     case "pop":
       playTone(ctx, 200, t0, 0.06, 0.18, "triangle");
       break;
+    case "attention-chime":
+      playTone(ctx, 740, t0, 0.1, 0.13);
+      playTone(ctx, 988, t0 + 0.11, 0.12, 0.12);
+      playTone(ctx, 1174.66, t0 + 0.22, 0.22, 0.11);
+      break;
     default:
       playTone(ctx, 660, t0, 0.15, 0.12);
   }
@@ -148,7 +153,10 @@ export function playGeniusGameOverMelody(): void {
   playTone(ctx, 293.66, t0 + 0.44, 0.35, 0.1);
 }
 
-export async function playStageSound(_stage: Light, sound: StageSound): Promise<void> {
+export async function playStageSound(
+  _stage: string,
+  sound: StageSound,
+): Promise<void> {
   if (sound.custom_path) {
     try {
       await playCustomFile(sound.custom_path);
@@ -160,6 +168,38 @@ export async function playStageSound(_stage: Light, sound: StageSound): Promise<
   playPreset(sound.preset);
 }
 
-export async function previewStageSound(stage: Light, sound: StageSound): Promise<void> {
+export async function previewStageSound(stage: string, sound: StageSound): Promise<void> {
   await playStageSound(stage, sound);
+}
+
+let awaitingInputAudio: HTMLAudioElement | null = null;
+
+export function stopAwaitingInputBlink(): void {
+  if (!awaitingInputAudio) {
+    return;
+  }
+  awaitingInputAudio.pause();
+  awaitingInputAudio.currentTime = 0;
+}
+
+export async function playAwaitingInputBlink(sound: StageSound): Promise<void> {
+  if (!sound.custom_path) {
+    playPreset(sound.preset);
+    return;
+  }
+
+  const src = convertFileSrc(sound.custom_path);
+  if (!awaitingInputAudio) {
+    awaitingInputAudio = new Audio(src);
+    awaitingInputAudio.volume = 0.7;
+  } else if (awaitingInputAudio.src !== src) {
+    awaitingInputAudio.src = src;
+  }
+
+  awaitingInputAudio.currentTime = 0;
+  try {
+    await awaitingInputAudio.play();
+  } catch {
+    playPreset(sound.preset);
+  }
 }

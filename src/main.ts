@@ -10,7 +10,11 @@ import {
 } from "./interaction";
 import { applyWindowSize, applyWindowOrientation } from "./window-size";
 import { runGeniusGame } from "./genius";
-import type { Config, Light } from "./types";
+import {
+  isAwaitingInputMode,
+  setAwaitingInputMode,
+} from "./awaiting-input";
+import type { Config, Light, StatePayload } from "./types";
 
 let currentLight: Light = "green";
 let currentConfig: Config | null = null;
@@ -55,12 +59,27 @@ async function loadConfig(): Promise<Config> {
   return config;
 }
 
-function handleStateChange(state: Light): void {
+function handleStateChange(payload: StatePayload): void {
   if (gamingMode) {
     return;
   }
 
-  if (state === currentLight) {
+  const { state, awaiting_input: awaitingInput = false } = payload;
+
+  if (awaitingInput && state === "green") {
+    const entering = !isAwaitingInputMode();
+    currentLight = state;
+    const sounds = currentConfig?.sounds;
+    const awaitingSound =
+      sounds?.enabled && sounds.awaiting_input ? sounds.awaiting_input : null;
+    setAwaitingInputMode(true, entering ? awaitingSound : null);
+    return;
+  }
+
+  const wasAwaitingInput = isAwaitingInputMode();
+  setAwaitingInputMode(false);
+
+  if (state === currentLight && !wasAwaitingInput) {
     return;
   }
 
@@ -119,12 +138,23 @@ window.addEventListener("DOMContentLoaded", async () => {
   setActiveLight("green");
   setupDragAndSettings();
 
-  await listen<{ state: Light }>("state-changed", (event) => {
-    handleStateChange(event.payload.state);
+  await listen<StatePayload>("state-changed", (event) => {
+    handleStateChange(event.payload);
   });
 
-  await listen<{ state: Light }>("light-preview", (event) => {
-    setActiveLight(event.payload.state);
+  await listen<StatePayload>("light-preview", (event) => {
+    const { state, awaiting_input: awaitingInput = false } = event.payload;
+
+    if (awaitingInput && state === "green") {
+      const sounds = currentConfig?.sounds;
+      const awaitingSound =
+        sounds?.enabled && sounds.awaiting_input ? sounds.awaiting_input : null;
+      setAwaitingInputMode(true, awaitingSound);
+      return;
+    }
+
+    setAwaitingInputMode(false);
+    setActiveLight(state);
   });
 
   await listen("test-lights-start", () => {

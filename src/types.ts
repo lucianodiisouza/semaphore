@@ -1,5 +1,12 @@
 export type Light = "green" | "yellow" | "red";
 
+export type SoundStage = Light | "awaiting_input";
+
+export interface StatePayload {
+  state: Light;
+  awaiting_input?: boolean;
+}
+
 export interface StageSound {
   preset: string;
   custom_path: string | null;
@@ -10,6 +17,7 @@ export interface SoundsConfig {
   green: StageSound;
   yellow: StageSound;
   red: StageSound;
+  awaiting_input: StageSound;
 }
 
 export type WindowSize = "small" | "medium" | "large";
@@ -42,6 +50,7 @@ export const SOUND_PRESETS = [
   "bell",
   "ping",
   "pop",
+  "attention-chime",
 ] as const;
 
 export type SoundPreset = (typeof SOUND_PRESETS)[number];
