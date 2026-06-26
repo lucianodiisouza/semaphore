@@ -1,23 +1,23 @@
 {
   "Name": "Semaphore",
-  "Version": "1.0.0",
+  "UUID": "com.semaphore.streamdeck",
+  "Version": "1.0.0.0",
   "Author": "Semaphore",
-  "Description": "Shows the Semaphore AI agent traffic light (green / yellow / red) on your Stream Deck key.",
+  "Description": "Shows the Semaphore AI agent traffic light (green / yellow / red) on your Stream Deck keys.",
   "Category": "Semaphore",
   "CategoryIcon": "imgs/category",
   "Icon": "imgs/plugin",
-  "SDKVersion": 2,
+  "SDKVersion": 3,
   "CodePath": "bin/plugin.js",
   "Nodejs": {
-    "Version": "20",
-    "Debug": "enabled"
+    "Version": "20"
   },
   "Actions": [
     {
       "Name": "Semaphore Light",
       "UUID": "com.semaphore.streamdeck.light",
       "Icon": "imgs/action",
-      "Tooltip": "Shows the current Semaphore AI agent state: green (idle), yellow (thinking), or red (writing files).",
+      "Tooltip": "Shows the current Semaphore AI agent state on one key: green (idle), yellow (thinking), or red (writing files).",
       "SupportedInMultiActions": false,
       "States": [
         {
@@ -25,11 +25,58 @@
           "Name": "Unknown"
         }
       ]
+    },
+    {
+      "Name": "Green Light",
+      "UUID": "com.semaphore.streamdeck.green",
+      "Icon": "imgs/green",
+      "Tooltip": "Lights up when the Semaphore agent is idle (green). Use three keys for a full traffic light.",
+      "SupportedInMultiActions": false,
+      "States": [
+        {
+          "Image": "imgs/unknown",
+          "Name": "Off"
+        }
+      ]
+    },
+    {
+      "Name": "Yellow Light",
+      "UUID": "com.semaphore.streamdeck.yellow",
+      "Icon": "imgs/yellow",
+      "Tooltip": "Lights up when the Semaphore agent is thinking or running tools (yellow).",
+      "SupportedInMultiActions": false,
+      "States": [
+        {
+          "Image": "imgs/unknown",
+          "Name": "Off"
+        }
+      ]
+    },
+    {
+      "Name": "Red Light",
+      "UUID": "com.semaphore.streamdeck.red",
+      "Icon": "imgs/red",
+      "Tooltip": "Lights up when the Semaphore agent is writing or editing files (red).",
+      "SupportedInMultiActions": false,
+      "States": [
+        {
+          "Image": "imgs/unknown",
+          "Name": "Off"
+        }
+      ]
     }
   ],
   "OS": [
-    { "Platform": "windows", "MinimumVersion": "10" },
-    { "Platform": "mac", "MinimumVersion": "10.15" }
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    },
+    {
+      "Platform": "mac",
+      "MinimumVersion": "10.15"
+    }
   ],
-  "Software": { "MinimumVersion": "6.0" }
+  "Software": {
+    "MinimumVersion": "6.9"
+  }
 }
