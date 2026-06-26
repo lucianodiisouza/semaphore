@@ -1,6 +1,6 @@
 # Semaphore
 
-Floating traffic light for AI coding agents. Know at a glance when your agent is idle, thinking, or writing files — without switching windows or reading terminal output.
+Floating traffic light for AI coding agents. Shows when your agent is idle, thinking, or writing files, without switching windows or reading the terminal.
 
 | Light | Meaning |
 |-------|---------|
@@ -8,7 +8,7 @@ Floating traffic light for AI coding agents. Know at a glance when your agent is
 | **Yellow** | Thinking / running tools |
 | **Red** | Writing or editing files |
 
-Semaphore runs as a small always-on-top widget in the system tray. AI tools report their activity through **hooks**; Semaphore aggregates those signals and updates the light in real time.
+Semaphore is a small always-on-top widget in the system tray. AI tools send activity updates through **hooks**, and Semaphore updates the light.
 
 ---
 
@@ -45,7 +45,7 @@ Each release includes:
 | **Semaphore app** | `.dmg` (macOS), `.msi` (Windows), `.deb` or `.AppImage` (Linux) |
 | **semctl** | CLI bundled inside the app; copied to `~/.semaphore/bin/` on first run |
 
-No terminal is required for day-to-day use after installation.
+You don't need a terminal for normal use after install.
 
 ---
 
