@@ -127,7 +127,7 @@ When **Launch with tools** is enabled in Settings, Semaphore adds a session-star
 | **Claude Code** | Supported | `~/.claude/settings.json` | Settings → Connect, or `semctl install claude-code` |
 | **Codex CLI** | Supported (Bash hooks; file edit limited) | `~/.codex/hooks.json` + `~/.codex/config.toml` | Settings → Connect, or `semctl install codex` |
 | **Gemini CLI** | Supported | `~/.gemini/settings.json` | Settings → Connect, or `semctl install gemini-cli` |
-| **Copilot CLI** | Best-effort (varies by version) | `~/.copilot/hooks.json` | Settings → Connect, or `semctl install copilot-cli` |
+| **Copilot CLI** | Partial support (varies by version) | `~/.copilot/hooks.json` | Settings → Connect, or `semctl install copilot-cli` |
 
 ```bash
 # Install hooks for all supported tools
@@ -146,9 +146,9 @@ See [adapters/README.md](adapters/README.md) and the per-tool docs:
 
 - [Cursor](adapters/cursor/README.md)
 - [Claude Code](adapters/claude-code/README.md)
-- [Codex CLI](adapters/codex/README.md) — `PreToolUse` / `PostToolUse` mainly fire for **Bash** today; red light for file edits is best-effort
+- [Codex CLI](adapters/codex/README.md): `PreToolUse` / `PostToolUse` mainly fire for **Bash** today; red light for file edits is limited
 - [Gemini CLI](adapters/gemini-cli/README.md)
-- [Copilot CLI](adapters/copilot-cli/README.md) — hook surface varies by Copilot CLI version
+- [Copilot CLI](adapters/copilot-cli/README.md): hook surface varies by Copilot CLI version
 
 The installer merges hook entries into your existing config using a `_semaphore` marker. It never overwrites unrelated hooks.
 
@@ -272,7 +272,7 @@ AI tool lifecycle events
 ```
 
 1. **Hooks fire** when an AI tool starts thinking, uses a tool, edits a file, or finishes a turn.
-2. **`sem-hook`** translates the event into a light color and forwards it to `semctl`.
+2. **`sem-hook`** maps the event to a light color and forwards it to `semctl`.
 3. **`semctl`** sends a JSON line over IPC to the running Semaphore app.
 4. **State machine** tracks one entry per session ID and picks the highest-priority color: **red > yellow > green**.
 5. **UI** receives a `state-changed` event and updates the widget (and optional sound).
@@ -288,9 +288,9 @@ Stale sessions are pruned every 30 seconds based on `idle_timeout_secs`. Setting
 | Crate / package | Role |
 |-----------------|------|
 | **sem-core** | State machine, session aggregation, IPC server/client, config |
-| **semctl** | CLI — `set`, `status`, `install`, `uninstall`, `doctor`, `launch` |
+| **semctl** | CLI: `set`, `status`, `install`, `uninstall`, `doctor`, `launch` |
 | **semaphore** (Tauri) | Floating widget, tray, settings & onboarding windows |
-| **Frontend** (`src/`) | TypeScript + Vite — widget rendering, themes, i18n, sounds |
+| **Frontend** (`src/`) | TypeScript + Vite: widget rendering, themes, i18n, sounds |
 
 ### IPC protocol
 
@@ -402,8 +402,8 @@ Each theme is a JSON file with housing, lens, and glow colors. Select in Setting
 
 ### Languages
 
-- **English** (`en`) — default
-- **Portuguese (Brazil)** (`pt-BR`) — auto-detected from `LC_ALL` / `LANG`
+- **English** (`en`), default
+- **Portuguese (Brazil)** (`pt-BR`), auto-detected from `LC_ALL` / `LANG`
 
 To add a language, see [locales/CONTRIBUTING-i18n.md](locales/CONTRIBUTING-i18n.md).
 
