@@ -16,7 +16,7 @@ tauri-build = { version = "2", features = [] }
 [dependencies]
 sem-core = { path = "../crates/sem-core" }
 semctl = { path = "../crates/semctl" }
-tauri = { version = "2", features = ["protocol-asset", "tray-icon"] }
+tauri = { version = "2", features = ["protocol-asset", "tray-icon", "macos-private-api"] }
 tauri-plugin-opener = "2"
 tauri-plugin-dialog = "2"
 tauri-plugin-single-instance = "2"

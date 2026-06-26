@@ -1,14 +1,15 @@
 use std::sync::Arc;
 use std::time::Duration;
 
-use sem_core::config::Config;
+use sem_core::config::{window_dimensions, Config};
 use sem_core::ipc::{IpcServer, PruneTask};
 use sem_core::state::{LightState, StateMachine};
+use semctl::detect::{self, ToolStatus};
 use semctl::install;
 use tauri::{
     menu::{CheckMenuItem, Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    AppHandle, Emitter, Manager,
+    AppHandle, Emitter, LogicalSize, Manager, WebviewWindow,
 };
 use tokio::sync::RwLock;
 
@@ -45,11 +46,54 @@ fn install_hooks(tool: String) -> Result<(), String> {
 }
 
 #[tauri::command]
+fn detect_tools() -> Vec<ToolStatus> {
+    detect::detect_tools()
+}
+
+#[tauri::command]
+fn complete_onboarding(app: AppHandle) -> Result<(), String> {
+    let mut config = Config::load();
+    config.onboarding_completed = true;
+    config.save().map_err(|e| e.to_string())?;
+    if let Some(window) = app.get_webview_window("onboarding") {
+        window.hide().map_err(|e| e.to_string())?;
+    }
+    focus_main_window(&app);
+    Ok(())
+}
+
+#[tauri::command]
 fn show_settings(app: AppHandle) -> Result<(), String> {
     if let Some(window) = app.get_webview_window("settings") {
         window.show().map_err(|e| e.to_string())?;
         window.center().map_err(|e| e.to_string())?;
         window.set_focus().map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
+fn show_onboarding(app: AppHandle) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window("onboarding") {
+        window.show().map_err(|e| e.to_string())?;
+        window.center().map_err(|e| e.to_string())?;
+        window.set_focus().map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
+async fn apply_window_size(app: AppHandle, size: String) -> Result<(), String> {
+    apply_main_window_size(&app, &size)
+}
+
+fn apply_main_window_size(app: &AppHandle, size: &str) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window("main") {
+        let (width, height) = window_dimensions(size);
+        window
+            .set_size(LogicalSize::new(width, height))
+            .map_err(|e| e.to_string())?;
+        let _ = window.set_shadow(false);
     }
     Ok(())
 }
@@ -115,6 +159,20 @@ fn focus_main_window(app: &AppHandle) {
         let _ = window.show();
         let _ = window.set_focus();
     }
+}
+
+fn setup_main_window(window: &WebviewWindow, config: &Config) -> tauri::Result<()> {
+    if config.stealth {
+        let _ = window.set_content_protected(true);
+    }
+    let _ = window.set_always_on_top(config.always_on_top);
+    let _ = window.set_shadow(false);
+    let (width, height) = window_dimensions(&config.window.size);
+    let _ = window.set_size(LogicalSize::new(width, height));
+    let _ = window.set_position(tauri::Position::Physical(
+        tauri::PhysicalPosition::new(config.window.x, config.window.y),
+    ));
+    Ok(())
 }
 
 fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
@@ -228,6 +286,7 @@ pub fn run() {
         config.idle_timeout_secs,
     ))));
     let machine_setup = Arc::clone(&machine);
+    let show_onboarding_on_start = !config.onboarding_completed;
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
@@ -236,18 +295,21 @@ pub fn run() {
             focus_main_window(app);
         }))
         .setup(move |app| {
+            #[cfg(target_os = "macos")]
+            {
+                let _ = app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+            }
+
             let _ = install::prepare_runtime();
             setup_tray(app.handle())?;
             start_ipc(app.handle(), machine_setup);
 
             if let Some(window) = app.get_webview_window("main") {
-                if config.stealth {
-                    let _ = window.set_content_protected(true);
-                }
-                let _ = window.set_always_on_top(config.always_on_top);
-                let _ = window.set_position(tauri::Position::Physical(
-                    tauri::PhysicalPosition::new(config.window.x, config.window.y),
-                ));
+                setup_main_window(&window, &config)?;
+            }
+
+            if show_onboarding_on_start {
+                let _ = show_onboarding(app.handle().clone());
             }
 
             Ok(())
@@ -257,7 +319,11 @@ pub fn run() {
             save_config,
             set_stealth,
             install_hooks,
+            detect_tools,
+            complete_onboarding,
             show_settings,
+            show_onboarding,
+            apply_window_size,
             import_stage_sound
         ])
         .run(tauri::generate_context!())
