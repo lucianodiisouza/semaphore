@@ -9,7 +9,13 @@
   <body>
     <div class="settings-page">
       <form id="settings-form">
-        <h1 id="settings-title">Settings</h1>
+        <header class="settings-header">
+          <h1 id="settings-title">Settings</h1>
+          <div class="actions">
+            <button type="button" id="btn-cancel">Cancel</button>
+            <button type="submit" id="btn-save">Save</button>
+          </div>
+        </header>
 
         <section class="section">
           <label>
@@ -130,11 +136,6 @@
           <h3 id="about-tray-title"></h3>
           <ul id="about-tray" class="about-list"></ul>
         </section>
-
-        <div class="actions">
-          <button type="button" id="btn-cancel">Cancel</button>
-          <button type="submit" id="btn-save">Save</button>
-        </div>
       </form>
     </div>
     <script type="module" src="/src/settings.ts"></script>
