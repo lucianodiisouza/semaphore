@@ -8,6 +8,8 @@ pub struct Config {
     pub idle_timeout_secs: u64,
     #[serde(default)]
     pub stealth: bool,
+    #[serde(default = "default_always_on_top")]
+    pub always_on_top: bool,
     #[serde(default = "default_theme")]
     pub theme: String,
     #[serde(default = "default_locale")]
@@ -36,6 +38,10 @@ fn default_idle_timeout() -> u64 {
     300
 }
 
+fn default_always_on_top() -> bool {
+    true
+}
+
 fn default_theme() -> String {
     "classic".to_string()
 }
@@ -53,6 +59,7 @@ impl Default for Config {
         Self {
             idle_timeout_secs: default_idle_timeout(),
             stealth: false,
+            always_on_top: default_always_on_top(),
             stealth_acknowledged: false,
             theme: default_theme(),
             locale: detect_locale(),
