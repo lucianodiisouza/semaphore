@@ -1,6 +1,6 @@
 # Semaphore
 
-Semáforo flutuante para agentes de IA. Veja de relance quando o agente está ocioso, pensando ou escrevendo arquivos — sem trocar de janela ou ler o terminal.
+Semáforo flutuante para agentes de IA. Mostra quando o agente está ocioso, pensando ou escrevendo arquivos, sem trocar de janela ou ler o terminal.
 
 | Luz | Significado |
 |-----|-------------|
@@ -8,7 +8,7 @@ Semáforo flutuante para agentes de IA. Veja de relance quando o agente está oc
 | **Amarelo** | Pensando / executando ferramentas |
 | **Vermelho** | Escrevendo ou editando arquivos |
 
-O Semaphore fica na bandeja do sistema como um widget sempre visível. As ferramentas de IA reportam atividade via **hooks**; o Semaphore agrega esses sinais e atualiza a luz em tempo real.
+O Semaphore fica na bandeja do sistema como um widget sempre visível. As ferramentas de IA enviam atualizações de atividade via **hooks**, e o Semaphore atualiza a luz.
 
 ---
 
@@ -25,9 +25,9 @@ Cada release inclui o app Semaphore (`.dmg`, `.msi`, `.deb` ou `.AppImage`) e o 
 ## Início rápido
 
 1. **Baixe** o release para seu sistema (ou [compile do código-fonte](#desenvolvimento))
-2. **Abra o Semaphore** — ele fica no tray com o widget flutuante
+2. **Abra o Semaphore**. Ele fica no tray com o widget flutuante
 3. **Conclua o onboarding** (primeira abertura) ou abra **Configurações** e conecte suas ferramentas
-4. **Use suas ferramentas de IA normalmente** — os hooks atualizam a luz automaticamente
+4. **Use suas ferramentas de IA normalmente**. Os hooks atualizam a luz automaticamente
 
 Pelo terminal:
 
@@ -64,7 +64,7 @@ Opções: tema, tamanho, idioma, modo furtivo, sempre no topo, sons, conexão de
 | **Sempre no topo** | Mantém acima das outras janelas |
 | **Horizontal** | Layout horizontal do semáforo |
 | **Testar luzes** | Toca uma melodia curta e alterna verde, amarelo e vermelho |
-| **Jogar Genius** | Jogo de memória — repita a sequência clicando nas luzes |
+| **Jogar Genius** | Jogo de memória: repita a sequência clicando nas luzes |
 | **Sair** | Encerra o Semaphore |
 
 Clique com o botão esquerdo no ícone do tray para mostrar/focar o widget.
@@ -164,4 +164,4 @@ Oculta o widget de muitas ferramentas de captura de tela. Funciona melhor no Win
 
 ## Licença
 
-MIT — veja [LICENSE](LICENSE).
+MIT. Veja [LICENSE](LICENSE).
