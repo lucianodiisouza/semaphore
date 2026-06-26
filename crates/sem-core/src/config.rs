@@ -86,9 +86,9 @@ const HOUSING_BORDER: u32 = 2;
 fn housing_dimensions(size: &str) -> (u32, u32) {
     // (outer width in vertical layout, outer height in vertical layout)
     match size {
-        "small" => (42, 122 + HOUSING_BORDER),
-        "large" => (84, 236 + HOUSING_BORDER),
-        _ => (56, 160 + HOUSING_BORDER),
+        "small" => (44, 122 + HOUSING_BORDER),
+        "large" => (86, 236 + HOUSING_BORDER),
+        _ => (58, 160 + HOUSING_BORDER),
     }
 }
 
@@ -256,16 +256,16 @@ mod tests {
 
     #[test]
     fn window_dimensions_for_each_size() {
-        assert_eq!(window_dimensions("small", false), (42, 124));
-        assert_eq!(window_dimensions("medium", false), (56, 162));
-        assert_eq!(window_dimensions("large", false), (84, 238));
-        assert_eq!(window_dimensions("unknown", false), (56, 162));
+        assert_eq!(window_dimensions("small", false), (44, 124));
+        assert_eq!(window_dimensions("medium", false), (58, 162));
+        assert_eq!(window_dimensions("large", false), (86, 238));
+        assert_eq!(window_dimensions("unknown", false), (58, 162));
     }
 
     #[test]
     fn window_dimensions_horizontal_swaps_axes() {
-        assert_eq!(window_dimensions("medium", true), (162, 56));
-        assert_eq!(window_dimensions("small", true), (124, 42));
+        assert_eq!(window_dimensions("medium", true), (162, 58));
+        assert_eq!(window_dimensions("small", true), (124, 44));
     }
 
     #[test]

@@ -148,7 +148,7 @@ label {
   padding: 4px;
 }
 
-.preview-wrap[data-size="small"] {
+.preview-wrap:not(.preview-wrap--live)[data-size="small"] {
   --housing-width: 22px;
   --housing-padding-y: 4px;
   --housing-padding-x: 3px;
@@ -157,7 +157,7 @@ label {
   --light-size: 15px;
 }
 
-.preview-wrap[data-size="medium"] {
+.preview-wrap:not(.preview-wrap--live)[data-size="medium"] {
   --housing-width: 28px;
   --housing-padding-y: 5px;
   --housing-padding-x: 4px;
@@ -166,7 +166,7 @@ label {
   --light-size: 20px;
 }
 
-.preview-wrap[data-size="large"] {
+.preview-wrap:not(.preview-wrap--live)[data-size="large"] {
   --housing-width: 36px;
   --housing-padding-y: 6px;
   --housing-padding-x: 5px;
@@ -176,7 +176,7 @@ label {
 }
 
 .preview-wrap--live {
-  --housing-width: 56px;
+  --housing-width: 58px;
   --housing-padding-y: 10px;
   --housing-padding-x: 8px;
   --housing-gap: 10px;
@@ -187,7 +187,7 @@ label {
 }
 
 .preview-wrap--live[data-size="small"] {
-  --housing-width: 42px;
+  --housing-width: 44px;
   --housing-padding-y: 8px;
   --housing-padding-x: 6px;
   --housing-gap: 8px;
@@ -197,7 +197,7 @@ label {
 }
 
 .preview-wrap--live[data-size="large"] {
-  --housing-width: 84px;
+  --housing-width: 86px;
   --housing-padding-y: 14px;
   --housing-padding-x: 12px;
   --housing-gap: 14px;
