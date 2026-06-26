@@ -50,9 +50,15 @@ jobs:
         with:
           name: semaphore-${{ matrix.target }}
           path: |
-            target/${{ matrix.target }}/release/bundle/**/*
+            target/${{ matrix.target }}/release/bundle/dmg/*.dmg
+            target/${{ matrix.target }}/release/bundle/macos/**/*.dmg
+            target/${{ matrix.target }}/release/bundle/msi/*.msi
+            target/${{ matrix.target }}/release/bundle/nsis/*-setup.exe
+            target/${{ matrix.target }}/release/bundle/deb/*.deb
+            target/${{ matrix.target }}/release/bundle/appimage/*.AppImage
             target/${{ matrix.target }}/release/semctl
             target/${{ matrix.target }}/release/semctl.exe
+          if-no-files-found: warn
 
   release:
     needs: build
@@ -68,7 +74,9 @@ jobs:
           find artifacts -type f | while read -r file; do
             base=$(basename "$file")
             case "$base" in
-              *.d|*.pdb) continue ;;
+              semctl|semctl.exe) ;;
+              *.dmg|*.msi|*.deb|*.AppImage|*-setup.exe) ;;
+              *) continue ;;
             esac
             case "$file" in
               *aarch64-apple-darwin*) suffix="-macos-arm64" ;;
