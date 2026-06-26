@@ -79,6 +79,12 @@ body {
   cursor: grabbing;
 }
 
+body[data-orientation="horizontal"] .housing {
+  flex-direction: row;
+  width: fit-content;
+  height: var(--housing-width);
+}
+
 .light {
   position: relative;
   width: var(--light-size);

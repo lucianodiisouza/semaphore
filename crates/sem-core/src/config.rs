@@ -52,6 +52,8 @@ pub struct WindowConfig {
     pub y: i32,
     #[serde(default = "default_window_size")]
     pub size: String,
+    #[serde(default)]
+    pub horizontal: bool,
 }
 
 impl Default for WindowConfig {
@@ -60,6 +62,7 @@ impl Default for WindowConfig {
             x: 20,
             y: 20,
             size: default_window_size(),
+            horizontal: false,
         }
     }
 }
@@ -80,8 +83,13 @@ fn housing_dimensions(size: &str) -> (u32, u32) {
 }
 
 /// Physical pixel dimensions for the main widget window.
-pub fn window_dimensions(size: &str) -> (u32, u32) {
+pub fn window_dimensions(size: &str, horizontal: bool) -> (u32, u32) {
     let (width, height) = housing_dimensions(size);
+    let (width, height) = if horizontal {
+        (height, width)
+    } else {
+        (width, height)
+    };
     (width + 2 * WINDOW_INSET, height + 2 * WINDOW_INSET)
 }
 
@@ -233,10 +241,16 @@ mod tests {
 
     #[test]
     fn window_dimensions_for_each_size() {
-        assert_eq!(window_dimensions("small"), (98, 178));
-        assert_eq!(window_dimensions("medium"), (112, 216));
-        assert_eq!(window_dimensions("large"), (140, 292));
-        assert_eq!(window_dimensions("unknown"), (112, 216));
+        assert_eq!(window_dimensions("small", false), (98, 178));
+        assert_eq!(window_dimensions("medium", false), (112, 216));
+        assert_eq!(window_dimensions("large", false), (140, 292));
+        assert_eq!(window_dimensions("unknown", false), (112, 216));
+    }
+
+    #[test]
+    fn window_dimensions_horizontal_swaps_axes() {
+        assert_eq!(window_dimensions("medium", true), (216, 112));
+        assert_eq!(window_dimensions("small", true), (178, 98));
     }
 
     #[test]

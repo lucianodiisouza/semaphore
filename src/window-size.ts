@@ -9,3 +9,7 @@ export function applyWindowSize(size: string): WindowSize {
   document.body.dataset.size = normalized;
   return normalized;
 }
+
+export function applyWindowOrientation(horizontal: boolean): void {
+  document.body.dataset.orientation = horizontal ? "horizontal" : "vertical";
+}

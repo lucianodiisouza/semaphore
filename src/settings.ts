@@ -240,7 +240,10 @@ async function saveConfigFromForm(): Promise<void> {
   applyTheme(config.theme);
   applyLocale(config.locale as Locale);
   await invoke("set_stealth", { enabled: config.stealth });
-  await invoke("apply_window_size", { size: config.window.size });
+  await invoke("apply_window_size", {
+    size: config.window.size,
+    horizontal: config.window.horizontal ?? false,
+  });
   await emit("config-changed", config);
 }
 

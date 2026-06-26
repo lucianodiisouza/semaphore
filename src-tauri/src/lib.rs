@@ -83,13 +83,13 @@ fn show_onboarding(app: AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
-async fn apply_window_size(app: AppHandle, size: String) -> Result<(), String> {
-    apply_main_window_size(&app, &size)
+async fn apply_window_size(app: AppHandle, size: String, horizontal: bool) -> Result<(), String> {
+    apply_main_window_size(&app, &size, horizontal)
 }
 
-fn apply_main_window_size(app: &AppHandle, size: &str) -> Result<(), String> {
+fn apply_main_window_size(app: &AppHandle, size: &str, horizontal: bool) -> Result<(), String> {
     if let Some(window) = app.get_webview_window("main") {
-        let (width, height) = window_dimensions(size);
+        let (width, height) = window_dimensions(size, horizontal);
         window
             .set_size(LogicalSize::new(width, height))
             .map_err(|e| e.to_string())?;
@@ -167,7 +167,7 @@ fn setup_main_window(window: &WebviewWindow, config: &Config) -> tauri::Result<(
     }
     let _ = window.set_always_on_top(config.always_on_top);
     let _ = window.set_shadow(false);
-    let (width, height) = window_dimensions(&config.window.size);
+    let (width, height) = window_dimensions(&config.window.size, config.window.horizontal);
     let _ = window.set_size(LogicalSize::new(width, height));
     let _ = window.set_position(tauri::Position::Physical(
         tauri::PhysicalPosition::new(config.window.x, config.window.y),
@@ -189,11 +189,28 @@ fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
         config.always_on_top,
         None::<&str>,
     )?;
+    let horizontal = CheckMenuItem::with_id(
+        app,
+        "horizontal",
+        "Horizontal",
+        true,
+        config.window.horizontal,
+        None::<&str>,
+    )?;
     let always_on_top_toggle = always_on_top.clone();
+    let horizontal_toggle = horizontal.clone();
     let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
     let menu = Menu::with_items(
         app,
-        &[&show, &hide, &settings, &stealth, &always_on_top, &quit],
+        &[
+            &show,
+            &hide,
+            &settings,
+            &stealth,
+            &always_on_top,
+            &horizontal,
+            &quit,
+        ],
     )?;
 
     let _tray = TrayIconBuilder::new()
@@ -225,6 +242,18 @@ fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
                     let _ = always_on_top_toggle.set_checked(config.always_on_top);
                     let _ = config.save();
                 }
+            }
+            "horizontal" => {
+                let mut config = Config::load();
+                config.window.horizontal = !config.window.horizontal;
+                let _ = apply_main_window_size(
+                    app,
+                    &config.window.size,
+                    config.window.horizontal,
+                );
+                let _ = horizontal_toggle.set_checked(config.window.horizontal);
+                let _ = config.save();
+                let _ = app.emit("config-changed", config);
             }
             "quit" => {
                 app.exit(0);

@@ -8,7 +8,7 @@ import {
   pointerDistance,
   shouldOpenSettingsOnDoubleClick,
 } from "./interaction";
-import { applyWindowSize } from "./window-size";
+import { applyWindowSize, applyWindowOrientation } from "./window-size";
 import type { Config, Light } from "./types";
 
 let currentLight: Light = "green";
@@ -39,7 +39,11 @@ async function applyConfigToUi(config: Config): Promise<void> {
   applyTheme(config.theme);
   applyMainLocale((config.locale as Locale) || "en");
   applyWindowSize(config.window.size);
-  await invoke("apply_window_size", { size: config.window.size });
+  applyWindowOrientation(config.window.horizontal ?? false);
+  await invoke("apply_window_size", {
+    size: config.window.size,
+    horizontal: config.window.horizontal ?? false,
+  });
 }
 
 async function loadConfig(): Promise<Config> {

@@ -21,7 +21,7 @@ export interface Config {
   theme: string;
   locale: string;
   onboarding_completed: boolean;
-  window: { x: number; y: number; size: string };
+  window: { x: number; y: number; size: string; horizontal?: boolean };
   sounds: SoundsConfig;
 }
 
