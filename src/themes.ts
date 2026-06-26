@@ -28,17 +28,25 @@ const builtin: Record<string, ThemeFile> = {
 
 export const themeNames = Object.keys(builtin);
 
+export function getTheme(name: string): ThemeFile {
+  return builtin[name] ?? builtin.classic;
+}
+
+export function applyThemeToElement(element: HTMLElement, name: string): void {
+  const theme = getTheme(name);
+  element.style.setProperty("--housing-bg", theme.housingBg);
+  element.style.setProperty("--housing-border", theme.housingBorder);
+  element.style.setProperty("--lens-off", theme.lensOff);
+  element.style.setProperty("--green", theme.green);
+  element.style.setProperty("--green-glow", theme.greenGlow);
+  element.style.setProperty("--yellow", theme.yellow);
+  element.style.setProperty("--yellow-glow", theme.yellowGlow);
+  element.style.setProperty("--red", theme.red);
+  element.style.setProperty("--red-glow", theme.redGlow);
+  element.dataset.theme = theme.id;
+}
+
 export function applyTheme(name: string): void {
-  const theme = builtin[name] ?? builtin.classic;
-  const root = document.documentElement;
-  root.style.setProperty("--housing-bg", theme.housingBg);
-  root.style.setProperty("--housing-border", theme.housingBorder);
-  root.style.setProperty("--lens-off", theme.lensOff);
-  root.style.setProperty("--green", theme.green);
-  root.style.setProperty("--green-glow", theme.greenGlow);
-  root.style.setProperty("--yellow", theme.yellow);
-  root.style.setProperty("--yellow-glow", theme.yellowGlow);
-  root.style.setProperty("--red", theme.red);
-  root.style.setProperty("--red-glow", theme.redGlow);
-  document.body.dataset.theme = theme.id;
+  applyThemeToElement(document.documentElement, name);
+  document.body.dataset.theme = getTheme(name).id;
 }

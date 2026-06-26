@@ -1,20 +1,106 @@
 import { emit } from "@tauri-apps/api/event";
+import { getVersion } from "@tauri-apps/api/app";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
+import { openUrl } from "@tauri-apps/plugin-opener";
 import { applyTheme } from "./themes";
 import { t, type Locale } from "./i18n";
+import {
+  buildSizePicker,
+  buildThemePicker,
+  createSemaphorePreview,
+  refreshSizePickerTheme,
+  updateLivePreview,
+} from "./preview";
 import { previewStageSound } from "./sounds";
-import type { Config, Light, StageSound, ToolStatus } from "./types";
+import type { Config, Light, StageSound, ToolStatus, WindowSize } from "./types";
+
+const GITHUB_REPO = "https://github.com/lucianodiisouza/semaphore";
 
 const STAGES: Light[] = ["green", "yellow", "red"];
 
 let currentLocale: Locale = "en";
+let selectedTheme = "classic";
+let selectedSize = "medium";
+let appVersion = "0.1.0";
 const customPaths: Record<Light, string | null> = {
   green: null,
   yellow: null,
   red: null,
 };
+
+function getThemeInput(): HTMLInputElement {
+  return document.getElementById("theme-select") as HTMLInputElement;
+}
+
+function getSizeInput(): HTMLInputElement {
+  return document.getElementById("size-select") as HTMLInputElement;
+}
+
+function setThemeValue(theme: string): void {
+  selectedTheme = theme;
+  getThemeInput().value = theme;
+  refreshSizePickerTheme(document.getElementById("size-picker")!, theme);
+  updateLivePreview(
+    document.getElementById("live-preview-inner")!,
+    theme,
+    selectedSize,
+  );
+}
+
+function setSizeValue(size: string): void {
+  selectedSize = size;
+  getSizeInput().value = size;
+  const livePreviewInner = document.getElementById("live-preview-inner")!;
+  livePreviewInner.dataset.size = size;
+  updateLivePreview(livePreviewInner, selectedTheme, size);
+}
+
+let pickersInitialized = false;
+
+function initAppearancePickers(): void {
+  if (pickersInitialized) {
+    const themePicker = document.getElementById("theme-picker")!;
+    const sizePicker = document.getElementById("size-picker")!;
+    for (const btn of themePicker.querySelectorAll<HTMLButtonElement>(".theme-option")) {
+      const isSelected = btn.dataset.value === selectedTheme;
+      btn.classList.toggle("selected", isSelected);
+      btn.setAttribute("aria-checked", String(isSelected));
+    }
+    for (const btn of sizePicker.querySelectorAll<HTMLButtonElement>(".size-option")) {
+      const isSelected = btn.dataset.value === selectedSize;
+      btn.classList.toggle("selected", isSelected);
+      btn.setAttribute("aria-checked", String(isSelected));
+    }
+    refreshSizePickerTheme(sizePicker, selectedTheme);
+    const livePreviewInner = document.getElementById("live-preview-inner")!;
+    livePreviewInner.dataset.size = selectedSize;
+    updateLivePreview(livePreviewInner, selectedTheme, selectedSize);
+    return;
+  }
+  pickersInitialized = true;
+  const themePicker = document.getElementById("theme-picker")!;
+  const sizePicker = document.getElementById("size-picker")!;
+  const strings = t(currentLocale);
+
+  buildThemePicker(themePicker, selectedTheme, setThemeValue);
+  buildSizePicker(
+    sizePicker,
+    selectedSize,
+    selectedTheme,
+    {
+      small: strings.settings.sizeSmall,
+      medium: strings.settings.sizeMedium,
+      large: strings.settings.sizeLarge,
+    },
+    setSizeValue,
+  );
+
+  const livePreviewInner = document.getElementById("live-preview-inner")!;
+  livePreviewInner.appendChild(createSemaphorePreview("green"));
+  updateLivePreview(livePreviewInner, selectedTheme, selectedSize);
+}
 
 function stageSound(stage: Light): StageSound {
   const presetSelect = document.getElementById(`sound-${stage}-preset`) as HTMLSelectElement;
@@ -96,6 +182,30 @@ async function refreshToolStatus(): Promise<void> {
   }
 }
 
+function renderAboutLinks(strings: ReturnType<typeof t>["about"]): void {
+  const links = document.getElementById("about-links")!;
+  links.innerHTML = "";
+
+  const githubLink = document.createElement("a");
+  githubLink.href = GITHUB_REPO;
+  githubLink.textContent = strings.github;
+  githubLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    void openUrl(GITHUB_REPO);
+  });
+
+  const releasesLink = document.createElement("a");
+  releasesLink.href = `${GITHUB_REPO}/releases`;
+  releasesLink.textContent = strings.releases;
+  releasesLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    void openUrl(`${GITHUB_REPO}/releases`);
+  });
+
+  links.appendChild(githubLink);
+  links.appendChild(releasesLink);
+}
+
 function applyLocale(locale: Locale): void {
   currentLocale = locale;
   const strings = t(locale);
@@ -103,8 +213,17 @@ function applyLocale(locale: Locale): void {
   document.getElementById("label-theme")!.textContent = strings.settings.theme;
   document.getElementById("label-language")!.textContent = strings.settings.language;
   document.getElementById("label-size")!.textContent = strings.settings.size;
+  document.getElementById("label-appearance-preview")!.textContent =
+    strings.settings.appearancePreview;
   document.getElementById("label-stealth")!.textContent = strings.settings.stealth;
   document.getElementById("label-connect")!.textContent = strings.settings.connect;
+  document.getElementById("label-startup")!.textContent = strings.settings.startup;
+  document.getElementById("label-autostart")!.textContent = strings.settings.autostart;
+  document.getElementById("autostart-note")!.textContent = strings.settings.autostartNote;
+  document.getElementById("label-launch-with-tools")!.textContent =
+    strings.settings.launchWithTools;
+  document.getElementById("launch-with-tools-note")!.textContent =
+    strings.settings.launchWithToolsNote;
   document.getElementById("btn-cancel")!.textContent = strings.settings.cancel;
   document.getElementById("btn-save")!.textContent = strings.settings.save;
   document.getElementById("stealth-note")!.textContent = strings.settings.stealthNote;
@@ -125,14 +244,18 @@ function applyLocale(locale: Locale): void {
   document.getElementById("btn-restart-onboarding")!.textContent = strings.settings.redoOnboarding;
   document.getElementById("about-title")!.textContent = strings.about.title;
   document.getElementById("about-description")!.textContent = strings.about.description;
+  document.getElementById("about-meta")!.textContent =
+    `${strings.about.version} ${appVersion} · ${strings.about.author} ${strings.about.authorName} · ${strings.about.license}`;
+  document.getElementById("about-contribute")!.textContent = strings.about.contribute;
   document.getElementById("about-controls-title")!.textContent = strings.about.controlsTitle;
   document.getElementById("about-tray-title")!.textContent = strings.about.trayTitle;
+  renderAboutLinks(strings.about);
 
-  const sizeSelect = document.getElementById("size-select") as HTMLSelectElement;
-  for (const option of sizeSelect.options) {
-    if (option.value === "small") option.textContent = strings.settings.sizeSmall;
-    if (option.value === "medium") option.textContent = strings.settings.sizeMedium;
-    if (option.value === "large") option.textContent = strings.settings.sizeLarge;
+  for (const option of document.querySelectorAll<HTMLButtonElement>(".size-option .visual-option-label")) {
+    const size = option.closest<HTMLButtonElement>(".size-option")?.dataset.value as WindowSize;
+    if (size === "small") option.textContent = strings.settings.sizeSmall;
+    if (size === "medium") option.textContent = strings.settings.sizeMedium;
+    if (size === "large") option.textContent = strings.settings.sizeLarge;
   }
 
   for (const stage of STAGES) {
@@ -188,18 +311,24 @@ function populateStageSound(stage: Light, sound: StageSound): void {
 
 async function loadConfig(): Promise<Config> {
   const config = await invoke<Config>("get_config");
+  selectedTheme = config.theme;
+  selectedSize = config.window.size || "medium";
   applyTheme(config.theme);
   applyLocale((config.locale as Locale) || "en");
-  (document.getElementById("theme-select") as HTMLSelectElement).value = config.theme;
-  (document.getElementById("locale-select") as HTMLSelectElement).value = config.locale;
-  (document.getElementById("size-select") as HTMLSelectElement).value =
-    config.window.size || "medium";
+  getThemeInput().value = config.theme;
+  getSizeInput().value = selectedSize;
   (document.getElementById("stealth-checkbox") as HTMLInputElement).checked = config.stealth;
+  (document.getElementById("autostart-checkbox") as HTMLInputElement).checked =
+    config.autostart ?? false;
+  (document.getElementById("launch-with-tools-checkbox") as HTMLInputElement).checked =
+    config.launch_with_tools ?? false;
   (document.getElementById("sounds-enabled-checkbox") as HTMLInputElement).checked =
     config.sounds?.enabled ?? false;
   populateStageSound("green", config.sounds?.green ?? { preset: "soft-chime", custom_path: null });
   populateStageSound("yellow", config.sounds?.yellow ?? { preset: "double-ping", custom_path: null });
   populateStageSound("red", config.sounds?.red ?? { preset: "alert", custom_path: null });
+
+  initAppearancePickers();
   return config;
 }
 
@@ -233,13 +362,19 @@ async function saveConfigFromForm(): Promise<void> {
     return;
   }
   let config = await invoke<Config>("get_config");
-  config.theme = (document.getElementById("theme-select") as HTMLSelectElement).value;
+  config.theme = getThemeInput().value;
   config.locale = (document.getElementById("locale-select") as HTMLSelectElement).value;
-  config.window.size = (document.getElementById("size-select") as HTMLSelectElement).value;
+  config.window.size = getSizeInput().value;
   config.stealth = (document.getElementById("stealth-checkbox") as HTMLInputElement).checked;
+  config.autostart = (document.getElementById("autostart-checkbox") as HTMLInputElement).checked;
+  config.launch_with_tools = (
+    document.getElementById("launch-with-tools-checkbox") as HTMLInputElement
+  ).checked;
   config.sounds = readSoundsFromForm();
   config = await maybeAcknowledgeStealth(config);
   await invoke("save_config", { config });
+  await invoke("set_autostart", { enabled: config.autostart });
+  await invoke("sync_launch_hooks");
   applyTheme(config.theme);
   applyLocale(config.locale as Locale);
   await invoke("set_stealth", { enabled: config.stealth });
@@ -302,6 +437,12 @@ async function hideSettings(): Promise<void> {
 
 window.addEventListener("DOMContentLoaded", async () => {
   const window = getCurrentWindow();
+
+  try {
+    appVersion = await getVersion();
+  } catch {
+    appVersion = "0.1.0";
+  }
 
   await window.onCloseRequested(async (event) => {
     event.preventDefault();

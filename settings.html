@@ -18,14 +18,25 @@
         </header>
 
         <section class="section">
-          <label>
-            <span id="label-theme">Theme</span>
-            <select id="theme-select">
-              <option value="classic">Classic</option>
-              <option value="minimal">Minimal</option>
-              <option value="neon">Neon</option>
-            </select>
-          </label>
+          <div class="field-group">
+            <span class="field-label" id="label-theme">Theme</span>
+            <div id="theme-picker" class="visual-picker theme-picker"></div>
+            <input type="hidden" id="theme-select" value="classic" />
+          </div>
+
+          <div class="field-group">
+            <span class="field-label" id="label-size">Size</span>
+            <div id="size-picker" class="visual-picker size-picker"></div>
+            <input type="hidden" id="size-select" value="medium" />
+          </div>
+
+          <div class="field-group">
+            <span class="field-label" id="label-appearance-preview">Preview</span>
+            <div id="live-preview" class="live-preview-wrap">
+              <div id="live-preview-inner" class="preview-wrap preview-wrap--live" data-size="medium"></div>
+            </div>
+          </div>
+
           <label>
             <span id="label-language">Language</span>
             <select id="locale-select">
@@ -33,19 +44,26 @@
               <option value="pt-BR">Português</option>
             </select>
           </label>
-          <label>
-            <span id="label-size">Size</span>
-            <select id="size-select">
-              <option value="small">Small</option>
-              <option value="medium">Medium</option>
-              <option value="large">Large</option>
-            </select>
-          </label>
+
           <label class="checkbox-row">
             <input type="checkbox" id="stealth-checkbox" />
             <span id="label-stealth">Stealth mode (hide from screen share)</span>
           </label>
           <p id="stealth-note" class="note"></p>
+        </section>
+
+        <section class="section">
+          <h2 id="label-startup">Startup</h2>
+          <label class="checkbox-row">
+            <input type="checkbox" id="autostart-checkbox" />
+            <span id="label-autostart">Launch at login</span>
+          </label>
+          <p id="autostart-note" class="note"></p>
+          <label class="checkbox-row">
+            <input type="checkbox" id="launch-with-tools-checkbox" />
+            <span id="label-launch-with-tools">Launch when AI tools start</span>
+          </label>
+          <p id="launch-with-tools-note" class="note"></p>
         </section>
 
         <section class="section" id="sounds-section">
@@ -136,6 +154,9 @@
         <section class="section about">
           <h2 id="about-title">About</h2>
           <p id="about-description"></p>
+          <p id="about-meta" class="about-meta"></p>
+          <p id="about-contribute" class="about-contribute"></p>
+          <div id="about-links" class="about-links"></div>
           <ul id="about-lights" class="about-list"></ul>
           <h3 id="about-controls-title"></h3>
           <ul id="about-controls" class="about-list"></ul>

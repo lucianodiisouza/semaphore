@@ -31,6 +31,12 @@ export interface LocaleStrings {
     onboarding: string;
     onboardingNote: string;
     redoOnboarding: string;
+    startup: string;
+    autostart: string;
+    autostartNote: string;
+    launchWithTools: string;
+    launchWithToolsNote: string;
+    appearancePreview: string;
   };
   tools: {
     cursor: string;
@@ -52,6 +58,13 @@ export interface LocaleStrings {
   about: {
     title: string;
     description: string;
+    version: string;
+    author: string;
+    authorName: string;
+    github: string;
+    releases: string;
+    contribute: string;
+    license: string;
     lights: string[];
     controlsTitle: string;
     controls: string[];
@@ -110,6 +123,13 @@ export const locales: Record<Locale, LocaleStrings> = {
       onboarding: "Onboarding",
       onboardingNote: "Walk through the welcome tour and tool setup again.",
       redoOnboarding: "Redo onboarding",
+      startup: "Startup",
+      autostart: "Launch at login",
+      autostartNote: "Start Semaphore automatically when you sign in to your computer.",
+      launchWithTools: "Launch when AI tools start",
+      launchWithToolsNote:
+        "Adds a hook to connected tools (Cursor, Claude Code, etc.) so Semaphore opens when you begin a session.",
+      appearancePreview: "Preview",
     },
     tools: {
       cursor: "Cursor",
@@ -132,6 +152,14 @@ export const locales: Record<Locale, LocaleStrings> = {
       title: "About Semaphore",
       description:
         "Floating traffic light for AI coding agents. See at a glance when your agent is idle, thinking, or writing files.",
+      version: "Version",
+      author: "Created by",
+      authorName: "Luciano Di Isouza",
+      github: "View on GitHub",
+      releases: "Releases",
+      contribute:
+        "Contributions are welcome! Open issues, suggest features, or submit pull requests on GitHub.",
+      license: "Licensed under MIT",
       lights: [
         "Green — ready for a new task",
         "Yellow — thinking / running tools",
@@ -206,6 +234,13 @@ export const locales: Record<Locale, LocaleStrings> = {
       onboarding: "Introdução",
       onboardingNote: "Refaça o tour de boas-vindas e a configuração das ferramentas.",
       redoOnboarding: "Refazer introdução",
+      startup: "Inicialização",
+      autostart: "Iniciar ao fazer login",
+      autostartNote: "Inicia o Semaphore automaticamente quando você entra no computador.",
+      launchWithTools: "Iniciar quando ferramentas de IA abrirem",
+      launchWithToolsNote:
+        "Adiciona um hook nas ferramentas conectadas (Cursor, Claude Code, etc.) para abrir o Semaphore ao iniciar uma sessão.",
+      appearancePreview: "Pré-visualização",
     },
     tools: {
       cursor: "Cursor",
@@ -228,6 +263,14 @@ export const locales: Record<Locale, LocaleStrings> = {
       title: "Sobre o Semaphore",
       description:
         "Semáforo flutuante para agentes de IA. Veja de relance quando seu agente está ocioso, pensando ou editando arquivos.",
+      version: "Versão",
+      author: "Criado por",
+      authorName: "Luciano Di Isouza",
+      github: "Ver no GitHub",
+      releases: "Releases",
+      contribute:
+        "Contribuições são bem-vindas! Abra issues, sugira melhorias ou envie pull requests no GitHub.",
+      license: "Licenciado sob MIT",
       lights: [
         "Verde — pronto para uma nova tarefa",
         "Amarelo — pensando / executando ferramentas",
